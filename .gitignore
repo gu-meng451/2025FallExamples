@@ -1,0 +1,24 @@
+# Ignore
+
+## Julia
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+deps/deps.jl
+# Ignore julia pkg
+Manifest.toml
+
+## Matlab
+*.mat
+*~
+*.asv
+
+## Jupyter
+.ipynb_checkpoints/
+
+## Compiled programs
+*.exe
+*.o
+
+## VScode
+.vscode/
