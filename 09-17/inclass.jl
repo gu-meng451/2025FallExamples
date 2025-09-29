@@ -28,3 +28,10 @@ display(Bbar)
 
 Cbar = C * P |> clip;
 display(Cbar)
+
+# Cont Matrix
+Cm = [ B A*B A^2*B A^3*B ]
+rank(Cm)
+
+Cm = [ Bbar Abar*Bbar Abar^2*Bbar Abar^3*Bbar ]
+rank(Cm)
