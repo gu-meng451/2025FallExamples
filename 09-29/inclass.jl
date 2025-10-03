@@ -16,6 +16,30 @@ function system!(dx, x, p, t)
     
 end
 
+
+function system_obs!(dw, w, p, t)
+
+    # w = [ x; xhat ]
+
+    # unpack parameters
+    A, B, C, k, L = p
+
+    # unpacking the states
+    n = size(A,1)
+    x = w[1:n]
+    x̂ = w[n+1:2*n]
+
+    u = -k*x̂
+    # the system
+    dw[1:n] = A*x + B*u
+    y = C*x
+
+    # the observer
+    ŷ = C*x̂
+    dw[n+1:2*n] = A*x̂ + B*u + L*(y - ŷ)
+    
+end
+
 M = diagm(0=>[10., 1])
 C = [10. 0; 0 0]
 K = [100 -10; -10 10.]
