@@ -4,7 +4,7 @@ using Plots
 using LinearAlgebra
 
 ## Let's make a multistep predictor/corrector method
-
+# xdot = f(x,p,t)
 #
 function forwardEuler_step(f, xn, tn, p, h)
     Fn = f(xn, p, tn)
@@ -29,7 +29,7 @@ function am2_step(f, xn, tn, p, h, fn, xs; tol=1e-5, maxIter=100)
         Fn1 = f(xs,p,tn1)
         xn1 .= xn + h/2*( Fn1 + fn )
         err = norm(xs-xn1)
-        xs .= xn1
+        xs .= xn1 # xs[:] = xn1[:]
         if err < tol
             break
         end
@@ -90,7 +90,7 @@ end
 
 A = [0 1; -1 -0.1]
 u0 = [1, 1.]
-h = 0.5
+h = 0.1
 nsteps = 100
 
 X, t = integrator(odesys,u0,A,h,nsteps)

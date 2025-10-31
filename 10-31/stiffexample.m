@@ -8,7 +8,7 @@ clc
 %
 % mu is the only parameter of the system.  as mu increases interesting
 % things happen.
-mu = 5;
+mu = 500;
 
 %%
 % The equations of motion
