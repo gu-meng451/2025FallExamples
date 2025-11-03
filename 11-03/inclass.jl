@@ -126,4 +126,7 @@ plot!(t, X)
 
 
 ##
-X, t = integ_adapt_h(odesys, u0, p, h, tf)
+X, t = integ_adapt_h(odesys, u0, p, h, tf, tol=1e-1)
+plot(t,X, xlabel="Time t", ylabel="State")
+plot!(t -> u_true(t)[1], 0, tf, label="true y1", line=:dash)
+plot!(t -> u_true(t)[2], 0, tf, label="true y2", line=:dash)
