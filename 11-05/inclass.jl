@@ -51,6 +51,7 @@ function integ_adapt_h(f, x0, p, h0, tf; tol=1e-4)
 
     i = 1
     h = h0
+    errnm1 = NaN
     while t[end] < tf
 
         xn = X[i, :]
@@ -58,16 +59,30 @@ function integ_adapt_h(f, x0, p, h0, tf; tol=1e-4)
         xn1, z = rk_adapt_step(f, xn, tn, p, h)
 
         # TODO replace with better method
-        err = norm(xn1 - z)
+        errn = norm(xn1 - z)
 
-        if err < tol
+        if errn < tol
             X = vcat(X, xn1')
             append!(t, tn + h)
+            # println(i)
+            if i == 1
+                h = h
+                errnm1 = errn
+            else
+                # p = 2
+                # α = 0.7/p
+                # β = 0.4/p
+                # h *= (tol/errn)^α*(errnm1/tol)^β
+                # errnm1 = errn
+                fac = 0.9
+                facmin = 0.1
+                facmax = 3.
+                h *= min(facmax, max(facmin,fac* (1/errn)^(1/(2+1))))
+            end
             i += 1
-            h = 1.1 * h
-
         else
             h = h / 2
+            println("I failed, again")
         end
 
     end
