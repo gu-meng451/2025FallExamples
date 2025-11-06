@@ -2,8 +2,9 @@ using Pkg
 Pkg.activate(".")
 
 using LinearAlgebra
-using NonlinearSolve
+# using NonlinearSolve
 using Plots
+using Printf
 
 ## demonstration
 function odesys(u, p, t)
@@ -40,7 +41,7 @@ function rk_adapt_step(f, xn, tn, p, h)
 
 end
 
-function integ_adapt_h(f, x0, p, h0, tf; tol=1e-4)
+function integ_adapt_h(f, x0, p, h0, tf; tol=1e-4, maxTries=100)
 
     X = x0'
     t = [0.]
@@ -49,6 +50,7 @@ function integ_adapt_h(f, x0, p, h0, tf; tol=1e-4)
     h = h0
     # errnm1 = NaN
     failcount = 0
+    iTries = 0
     while t[end] < tf
 
         xn = X[i, :]
@@ -58,9 +60,23 @@ function integ_adapt_h(f, x0, p, h0, tf; tol=1e-4)
         ## TODO replace with better method
         errn = norm(xn1 - z)
 
-        if errn < tol
+        iTries += 1
+        order = 1
+        fac = 0.9
+        facmin = 0.1
+        facmax = 2.
+        Atol = 1e-2
+        Rtol = 1e-2
+        toln = Atol + Rtol*max(norm(xn1), norm(xn))
+        En = errn/toln
+        println( (1/En)^(1/(order+1)) )
+        # println(min(facmax, max(facmin, fac * (1 / errn)^(1 / (order + 1)))))
+        h *= min(facmax, max(facmin, fac * (1/En)^(1/(order+1)) ) )
+
+        if En < 1 
             X = vcat(X, xn1')
             append!(t, tn + h)
+            iTries = 0
             
             ## Attempt 1: PI
             # if i == 1
@@ -75,16 +91,18 @@ function integ_adapt_h(f, x0, p, h0, tf; tol=1e-4)
             # end
 
             ## attempt 2
-            fac = 0.9
-            facmin = 0.1
-            facmax = 3.
-            h *= min(facmax, max(facmin, fac * (1 / errn)^(1 / (2 + 1))))
+            # fac = 0.9
+            # facmin = 0.1
+            # facmax = 3.
+            # h *= min(facmax, max(facmin, fac * (1 / errn)^(1 / (2 + 1))))
 
             i += 1
         else
-            h = h / 2
             failcount += 1
-            # println("I failed, again")
+        end
+
+        if iTries >= maxTries
+            error(@sprintf("Failed to make progress\n  i=%d\n  t=%f\n  h=%f\n ", i, t[i],h))
         end
 
     end
