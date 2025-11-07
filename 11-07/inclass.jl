@@ -33,6 +33,9 @@ function irk_step(f, xn, tn, p, h)
     b1 = 1/2
     b2 = 1/2
 
+    b1s = 1/2+sqrt(3)/2
+    b2s = 1/2-sqrt(3)/2
+
     # 0 = -X1 + xn + h*a11*f(t+c1*h,X1) + h*a12*f(t+c2*h,X2)
     # 0 = -X2 + xn + h*a21*f(t+c1*h,X1) + h*a22*f(t+c2*h,X2)
     #
@@ -48,9 +51,15 @@ function irk_step(f, xn, tn, p, h)
     end
 
     # update next time step
-    xn1 = xn + h * b1 * f(sol.u[:, 1], p, tn + c1 * h) + h * b2 * f(sol.u[:, 2], p, tn + c2 * h)
+    K1 = f(sol.u[:, 1], p, tn + c1 * h)
+    K2 = f(sol.u[:, 2], p, tn + c2 * h)
+    # 4th order method
+    xn1 = xn + h * (b1 * K1 + b2 * K2)
 
-    return xn1
+    # embedded method of 3rd order
+    z = xn + h * (b1s * K1 + b2s * K2)
+
+    return xn1, z
 
 end
 
@@ -72,7 +81,7 @@ function stepsizePI(xn1, z, xn, Enm1; order=1, Atol=1e-3, Rtol=1e-3)
 
 end
 
-function integ_adapt_h(f, x0, p, h0, tf; tol=1e-4, maxTries=100)
+function integ_adapt_h(f, x0, p, h0, tf; tol=1e-4, maxTries=100, const_step_size = false)
 
     X = x0'
     t = [0.]
@@ -88,22 +97,19 @@ function integ_adapt_h(f, x0, p, h0, tf; tol=1e-4, maxTries=100)
         tn = t[i]
 
         # h step
-        z = irk_step(f, xn, tn, p, h)
-
-        # h/2 steps
-        xn1_2 = irk_step(f, xn, tn, p, h/2)
-        xn1 = irk_step(f, xn1_2, tn+h/2, p, h/2)
+        xn1, z = irk_step(f, xn, tn, p, h)
 
         # keep track of number of tries to compute the next step
         iTries += 1
 
         # use PI step control
-        errn, fac = stepsizePI(xn1, z, xn, errn, Atol=tol, Rtol=0)
+        errn, fac = stepsizePI(xn1, z, xn, errn, Atol=tol, Rtol=0, order=3)
 
         # update step size
-        fac
-        # h *= fac
-        h *= 1
+        if const_step_size
+            fac = 1
+        end
+        h *= fac
 
         # compare normalized error to 1
         if errn < 1
@@ -128,7 +134,7 @@ end
 
 ##
 h0 = 0.1
-X, t, failcount = integ_adapt_h(odesys, u0, p, h0, tf, tol=1e-1)
+X, t, failcount = integ_adapt_h(odesys, u0, p, h0, tf, tol=1e-2, const_step_size=true)
 
 ## Plots
 plot(t, X, xlabel="Time t", ylabel="State")
