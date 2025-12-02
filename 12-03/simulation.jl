@@ -91,11 +91,6 @@ function g(q)
 end
 G(q) = ForwardDiff.jacobian(g, q)
 
-# function Gdot(q,v)
-#     # directional derivative of G(q) in direction v
-#     return ForwardDiff.derivative(t -> G(q .+ t .* v), 0.0)
-# end
-
 # number of coordinates (6 per 3d rigid body)
 n = 7
 
