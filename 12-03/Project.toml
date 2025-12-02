@@ -1,0 +1,5 @@
+[deps]
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
+NonlinearSolve = "8913a72c-1f9b-4ce2-8d82-65094dcecaec"
+SymPy = "24249f21-da20-56a4-8eb1-6a02cf4ae2e6"
