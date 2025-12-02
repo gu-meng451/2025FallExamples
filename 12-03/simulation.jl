@@ -21,6 +21,11 @@ Ig = [1. 0 0;
     0 2. 0;
     0 0 3.];
 
+
+# integration parameters
+h = 0.1
+nsteps = 1000
+
 # The order of the coordinates for each body are
 # [x,y,z,β{4}] ∈ R^7
 
@@ -146,8 +151,6 @@ g(q0) |> norm
 G(q0)*v0 |> norm
 
 ## integrate the system
-h = 0.1
-nsteps = 100
 X, Z, t = DAE.irk_integrator(F, H, p, vcat(q0,v0), h, nsteps, irk=DAE.radauIIA3)
 
 ## Static plot using GLMakie
@@ -214,13 +217,16 @@ for i in 1:num_frames
     C_matrices_res[i] = Rotations.Cᵦ(q)
 end
 
+
 # Convert resampled positions to Point3f for plotting
 traj_points = [Point3f(pos_res[:, i]...) for i in 1:num_frames]
 
 # Observable for animation (indexed over resampled frames)
 frame = Observable(1)
 
-lines!(ax_anim, traj_points, label="COM trajectory", color=:blue, linewidth=2)
+# Draw the full trajectory as a solid blue line (previous look)
+# Translucent trajectory (blue with 50% opacity)
+lines!(ax_anim, traj_points, label="COM trajectory", color=(0.0, 0.45, 0.8, 0.3), linewidth=2)
 
 # Animated body line
 body_line = @lift begin
@@ -245,8 +251,8 @@ body_axes = @lift begin
     (x_axis, y_axis, z_axis)
 end
 
-lines!(ax_anim, body_line, color=:darkorange, linewidth=3, label="Body")
-lines!(ax_anim, @lift(($body_axes)[1]), color=:tomato, linewidth=2, label="X-axis")
+lines!(ax_anim, body_line, color=:darkorange, linewidth=4, label="Body")
+lines!(ax_anim, @lift(($body_axes)[1]), color=:red, linewidth=2, label="X-axis")
 lines!(ax_anim, @lift(($body_axes)[2]), color=:forestgreen, linewidth=2, label="Y-axis")
 lines!(ax_anim, @lift(($body_axes)[3]), color=:royalblue, linewidth=2, label="Z-axis")
 
