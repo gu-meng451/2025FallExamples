@@ -81,10 +81,10 @@ function g(q)
     constraint = zeros(eltype(q), 4) 
 
     # fix the pin location
-    C_NB = Rotations.Cᵦ(β)
+    C_BN = Rotations.Cᵦ(β)
     constraint[1:3] = N_rp - N_rg - C_NB' * rp
 
-    # unit quaternion
+    # unit quaternion constraint
     constraint[4] = β'β - 1
 
     return constraint
