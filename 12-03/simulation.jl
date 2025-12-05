@@ -82,7 +82,7 @@ function g(q)
 
     # fix the pin location
     C_BN = Rotations.Cᵦ(β)
-    constraint[1:3] = N_rp - N_rg - C_NB' * rp
+    constraint[1:3] = N_rp - N_rg - C_BN' * rp
 
     # unit quaternion constraint
     constraint[4] = β'β - 1
